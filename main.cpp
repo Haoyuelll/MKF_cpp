@@ -30,28 +30,30 @@ struct LandMark
 };
 
 int main() {
-    const int robot_num = 2;
+    const int robot_num = 1;
+
     // Creating Map
     std::map<int, int> barcode_map;
-    barcode_map.insert(std::make_pair(23, 5));
-    barcode_map.insert(std::make_pair(72, 6));
-    barcode_map.insert(std::make_pair(27, 7));
-    barcode_map.insert(std::make_pair(54, 8));
-    barcode_map.insert(std::make_pair(70, 9));
-    barcode_map.insert(std::make_pair(36, 10));
-    barcode_map.insert(std::make_pair(18, 11));
-    barcode_map.insert(std::make_pair(25, 12));
-    barcode_map.insert(std::make_pair(9, 13));
-    barcode_map.insert(std::make_pair(81, 14));
-    barcode_map.insert(std::make_pair(16, 15));
-    barcode_map.insert(std::make_pair(90, 16));
-    barcode_map.insert(std::make_pair(61, 17));
-    barcode_map.insert(std::make_pair(45, 18));
-    barcode_map.insert(std::make_pair(7, 19));
-    barcode_map.insert(std::make_pair(63, 20));
+    std::ifstream barcode_file("../data/MRCLAM_Dataset3/Barcodes.dat");
+    std::string barcode_line;
+    std::getline(barcode_file, barcode_line);
+    while (barcode_line[0] == '#') {
+      std::getline(barcode_file, barcode_line);
+    }
+    {
+        int id, bc;
+        std::istringstream barcode_ss(barcode_line);
+        barcode_ss >> id >> bc;
+
+        while(!barcode_file.eof()) {
+            barcode_map.insert(std::make_pair(bc, id));
+            barcode_file >> id >> bc;
+        }
+        barcode_file.close();
+    }
 
     std::map<size_t, LandMark> landmark_map;
-    std::ifstream landmark_file("../data/MRCLAM_Dataset1/Landmark_Groundtruth.dat");
+    std::ifstream landmark_file("../data/MRCLAM_Dataset3/Landmark_Groundtruth.dat");
     std::string landmark_line;
     std::getline(landmark_file, landmark_line);
     while (landmark_line[0] == '#') {
@@ -77,7 +79,7 @@ int main() {
     }
 
     // Reading files
-    const std::string odometry_filename = "../data/MRCLAM_Dataset1/Robot" + std::to_string(robot_num) + "_Odometry.dat";
+    const std::string odometry_filename = "../data/MRCLAM_Dataset3/Robot" + std::to_string(robot_num) + "_Odometry.dat";
     std::ifstream odometry_file(odometry_filename);
     std::string odometry_line;
     std::getline(odometry_file, odometry_line);
@@ -110,7 +112,7 @@ int main() {
             odometry_time.at(i) -= base_time;
     }
 
-    const std::string ground_truth_filename = "../data/MRCLAM_Dataset1/Robot" + std::to_string(robot_num) + "_Groundtruth.dat";
+    const std::string ground_truth_filename = "../data/MRCLAM_Dataset3/Robot" + std::to_string(robot_num) + "_Groundtruth.dat";
     std::ifstream ground_truth_file(ground_truth_filename);
     std::string ground_truth_line;
     std::getline(ground_truth_file, ground_truth_line);
@@ -146,7 +148,7 @@ int main() {
         ground_truth_file.close();
     }
 
-    const std::string measurement_filename = "../data/MRCLAM_Dataset1/Robot" + std::to_string(robot_num) + "_Measurement.dat";
+    const std::string measurement_filename = "../data/MRCLAM_Dataset3/Robot" + std::to_string(robot_num) + "_Measurement.dat";
     std::ifstream measurement_file(measurement_filename);
     std::string measurement_line;
     std::getline(measurement_file, measurement_line);
@@ -444,7 +446,7 @@ int main() {
     matplotlibcpp::named_plot("true", x_true_vec, y_true_vec);
     matplotlibcpp::legend();
     matplotlibcpp::title("Result");
-    matplotlibcpp::show();
+    matplotlibcpp::save("../result/trajs/robot1_dataset3.png");
 
     return 0;
 }
